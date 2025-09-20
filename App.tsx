@@ -1,11 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import { InterviewState, Message, Feedback } from './types';
-import { 
-  startInterviewWithTopic, 
-  startInterviewWithGeneratedCase, 
+import {
+  startInterviewWithTopic,
+  startInterviewWithGeneratedCase,
   startInterviewWithUploadedCase,
-  continueConversation, 
-  getFinalFeedback 
+  continueConversation,
+  getFinalFeedback
 } from './services/geminiService';
 import WelcomeScreen from './components/WelcomeScreen';
 import SelectionScreen from './components/SelectionScreen';
@@ -19,7 +19,8 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [error, setError] = useState<string | null>(null);
-  
+  const [caseContext, setCaseContext] = useState<string | null>(null); // Stores the uploaded case content
+
   const startInterview = useCallback(async (startFunction: () => Promise<Message>) => {
     setIsLoading(true);
     setError(null);
@@ -32,7 +33,7 @@ const App: React.FC = () => {
     } catch (err) {
       console.error('Error starting interview:', err);
       setError('Failed to start the interview. Please try again later.');
-      setInterviewState(InterviewState.SELECTION); // Return to selection screen on error
+      setInterviewState(InterviewState.SELECTION);
     } finally {
       setIsLoading(false);
     }
@@ -40,17 +41,21 @@ const App: React.FC = () => {
 
   const handleStart = useCallback(() => {
     setInterviewState(InterviewState.SELECTION);
+    setCaseContext(null); // Reset case context
   }, []);
 
   const handleStartWithTopic = useCallback((topic: string) => {
+    setCaseContext(null); // Ensure case context is cleared for non-upload interviews
     startInterview(() => startInterviewWithTopic(topic));
   }, [startInterview]);
 
   const handleStartWithGeneratedCase = useCallback((caseType: string) => {
+    setCaseContext(null); // Ensure case context is cleared
     startInterview(() => startInterviewWithGeneratedCase(caseType));
   }, [startInterview]);
 
   const handleStartWithUpload = useCallback((caseContent: string) => {
+    setCaseContext(caseContent); // Set the case context from the upload
     startInterview(() => startInterviewWithUploadedCase(caseContent));
   }, [startInterview]);
 
@@ -62,8 +67,8 @@ const App: React.FC = () => {
     setError(null);
 
     try {
-      // Pass the entire updated history to the conversation service
-      const aiResponse = await continueConversation(updatedMessages);
+      // Pass the updated history AND the stored case context to the service
+      const aiResponse = await continueConversation(updatedMessages, caseContext);
       setMessages(prev => [...prev, aiResponse]);
     } catch (err) {
       console.error('Error continuing conversation:', err);
@@ -72,7 +77,7 @@ const App: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [messages]);
+  }, [messages, caseContext]); // Add caseContext to the dependency array
 
   const handleEndInterview = useCallback(async () => {
     setIsLoading(true);
@@ -95,12 +100,13 @@ const App: React.FC = () => {
       setIsLoading(false);
     }
   }, [messages]);
-  
+
   const handleStartNew = useCallback(() => {
     setInterviewState(InterviewState.WELCOME);
     setMessages([]);
     setFeedback(null);
     setError(null);
+    setCaseContext(null); // Reset case context
   }, []);
 
   const renderContent = () => {
@@ -116,11 +122,11 @@ const App: React.FC = () => {
         );
       case InterviewState.FEEDBACK:
         return (
-          <FeedbackScreen 
-            feedback={feedback} 
-            isLoading={isLoading} 
+          <FeedbackScreen
+            feedback={feedback}
+            isLoading={isLoading}
             onStartNew={handleStartNew}
-            error={error} 
+            error={error}
           />
         );
       case InterviewState.SELECTION:
@@ -136,7 +142,7 @@ const App: React.FC = () => {
       case InterviewState.WELCOME:
       default:
         return (
-          <WelcomeScreen 
+          <WelcomeScreen
             onStart={handleStart}
           />
         );

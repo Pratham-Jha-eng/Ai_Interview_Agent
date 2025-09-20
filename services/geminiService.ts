@@ -36,8 +36,9 @@ export const startInterviewWithUploadedCase = async (caseContent: string): Promi
   return postToProxy('start_upload', { caseContent });
 };
 
-export const continueConversation = async (history: Message[]): Promise<Message> => {
-  return postToProxy('continue', { history });
+export const continueConversation = async (history: Message[], caseContent: string | null): Promise<Message> => {
+  // Pass both the history and the caseContent to the backend
+  return postToProxy('continue', { history, caseContent });
 };
 
 export const getFinalFeedback = async (history: Message[]): Promise<Feedback> => {

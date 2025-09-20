@@ -52,17 +52,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
 
       case 'continue': {
-        const { history } = payload as { history: Message[] };
+        const { history, caseContent } = payload as { history: Message[], caseContent?: string | null };
         const lastMessage = history[history.length - 1];
         const geminiHistory = history.slice(0, -1).map(msg => ({
           role: msg.role === 'user' ? 'user' : 'model',
           parts: [{ text: msg.content }],
         }));
         
+        // Conditionally set the system instruction
+        const systemInstruction = caseContent 
+            ? getUploadSystemInstruction(caseContent) 
+            : INTERVIEWER_SYSTEM_INSTRUCTION;
+            
         const chat = ai.chats.create({ 
             model: 'gemini-2.5-flash',
             history: geminiHistory,
-            config: { systemInstruction: INTERVIEWER_SYSTEM_INSTRUCTION }
+            config: { systemInstruction } // Use the determined system instruction
         });
 
         const response = await chat.sendMessage({ message: lastMessage.content });
