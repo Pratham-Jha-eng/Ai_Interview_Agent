@@ -1,0 +1,7 @@
+{
+  "name": "AI Case Interview Buddy",
+  "description": "An AI-powered interview preparation tool to practice case studies. The AI acts as an interviewer, provides a case, and gives feedback on your performance.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
