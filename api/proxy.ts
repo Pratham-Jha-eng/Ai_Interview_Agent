@@ -120,11 +120,6 @@ const getUploadSystemInstruction = (caseContent: string) => `You are an expert c
 
 **IMPORTANT RULE:** You must conduct the interview based *only* on the following provided case study material. Do not invent a new case. Use the text below as the source for the case problems. When the candidate is ready, you can ask them which case from the provided text they'd like to begin with, or begin with the first one if only one is provided.
 
-**Your first action:**
-1.  Read the provided "CASEBOOK CONTENT".
-2.  If you find more than one distinct case study, your first response to the user should be to list the cases by their title or the first few words, and ask the user "Which case would you like to begin with?".
-3.  If you find only one case study, your first response should be to present the opening paragraph of that case study to begin the interview.
-
 --- CASEBOOK CONTENT ---
 ${caseContent}
 --- END CASEBOOK CONTENT ---
