@@ -47,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           model: 'gemini-2.5-flash',
           config: { systemInstruction: UPLOAD_SYSTEM_INSTRUCTION },
         });
-        const response = await chat.sendMessage({ message: `I have reviewed the casebook you provided and am ready to begin the interview based on its content.` });
+        const response = await chat.sendMessage({ message: `I've uploaded my casebook. Please begin.` });
         return res.status(200).json({ role: 'assistant', content: response.text });
       }
 
@@ -116,9 +116,14 @@ const INTERVIEWER_SYSTEM_INSTRUCTION = `You are an expert case study interviewer
 6.  **Clear Formatting:** When presenting complex information, such as the initial case prompt or data points, use clear formatting. Use newlines to separate paragraphs and bullet points (using \`*\` or \`-\`) for lists to enhance readability.
 `;
 
-const getUploadSystemInstruction = (caseContent: string) => `You are an expert case study interviewer from a top consulting firm like McKinsey, BCG, or Bain. Your goal is to assess the candidate's problem-solving skills.
-  
-**IMPORTANT RULE:** You must conduct the interview based *only* on the following provided case study material. Do not invent a new case. Use the text below as the source for the case problems. When the candidate is ready, you can ask them which case from the provided text they'd like to begin with, or begin with the first one if only one is provided.
+const getUploadSystemInstruction = (caseContent: string) => `You are an expert case study interviewer from a top consulting firm. Your goal is to assess a candidate's problem-solving skills.
+
+**CRITICAL INSTRUCTION: Your ONLY source of information for this interview is the text provided below inside the "CASEBOOK CONTENT" block. You are STRICTLY FORBIDDEN from inventing, creating, modifying, or summarizing a new case. You must work exclusively with the provided text.**
+
+**Your first action:**
+1.  Read the provided "CASEBOOK CONTENT".
+2.  If you find more than one distinct case study, your first response to the user should be to list the cases by their title or the first few words, and ask the user "Which case would you like to begin with?".
+3.  If you find only one case study, your first response should be to present the opening paragraph of that case study to begin the interview.
 
 --- CASEBOOK CONTENT ---
 ${caseContent}
