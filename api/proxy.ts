@@ -23,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       case 'start_topic': {
         const { topic } = payload;
         const chat = ai.chats.create({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-1.5-flash',
           config: { systemInstruction: INTERVIEWER_SYSTEM_INSTRUCTION },
         });
         const response = await chat.sendMessage({ message: `I'm ready to start. Please give me a case study about the ${topic} industry.` });
@@ -33,7 +33,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       case 'start_generate': {
         const { caseType } = payload;
         const chat = ai.chats.create({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-1.5-flash',
           config: { systemInstruction: INTERVIEWER_SYSTEM_INSTRUCTION },
         });
         const response = await chat.sendMessage({ message: `I'm ready to start. Please generate and present a new, unique case study of the '${caseType}' type.` });
@@ -44,7 +44,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const { caseContent } = payload;
         const UPLOAD_SYSTEM_INSTRUCTION = getUploadSystemInstruction(caseContent);
         const chat = ai.chats.create({
-          model: 'gemini-2.5-flash',
+          model: 'gemini-1.5-flash',
           config: { systemInstruction: UPLOAD_SYSTEM_INSTRUCTION },
         });
         const response = await chat.sendMessage({ message: `I've uploaded my casebook. Please begin.` });
@@ -65,7 +65,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             : INTERVIEWER_SYSTEM_INSTRUCTION;
             
         const chat = ai.chats.create({ 
-            model: 'gemini-2.5-flash',
+            model: 'gemini-1.5-flash',
             history: geminiHistory,
             config: { systemInstruction } // Use the determined system instruction
         });
@@ -80,7 +80,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const prompt = getFeedbackPrompt(transcript);
 
         const response = await ai.models.generateContent({
-          model: "gemini-2.5-flash",
+          model: "gemini-1.5-flash",
           contents: prompt,
           config: {
             responseMimeType: "application/json",
